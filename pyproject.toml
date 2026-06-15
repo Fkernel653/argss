@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "argss"
+version = "0.1.0"
+description = "Write type-annotated Python functions, get a CLI with argparse's native `--help` — no magic, no bloat. Flat commands only, synchronous execution"
+readme = "README.md"
+requires-python = ">=3.14"
+license = "MIT"
+authors = [
+    {name = "Fkernel653"}
+]
+keywords = ["cli", "argparse", "command-line", "framework", "lightweight"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: User Interfaces",
+    "Topic :: Terminals",
+    "Topic :: Utilities",
+]
+
+[project.optional-dependencies]
+dev = ["ruff"]
+
+[project.urls]
+Homepage = "https://github.com/Fkernel653/argss"
+Repository = "https://github.com/Fkernel653/argss.git"
+Documentation = "https://github.com/Fkernel653/argss#readme"
+
+[tool.hatch.build.targets.wheel]
+packages = ["argss"]
