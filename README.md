@@ -54,7 +54,7 @@ def list_all():
     """Show all tasks."""
     print("Nothing yet!")
 
-cli.run()
+cli()
 ```
 
 ```bash
