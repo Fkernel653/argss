@@ -148,7 +148,7 @@ class CLI:
         result = command_info["func"](**func_kwargs)
 
         if result is not None:
-            sys.stdout.write(str(result) + "\n")
+            sys.stdout.write(result + "\n")
 
     def __call__(self, args: List[str] | None = None) -> None:
         return self.run(args)
