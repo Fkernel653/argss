@@ -15,6 +15,7 @@ Write type-annotated Python functions, get a CLI with argparse's native `--help`
 | Feature | arg-kiss | argss |
 |---------|----------|-------|
 | `@cli.command()` | ✅ | ✅ |
+| `@cli.argument()` | ✅ | ✅ |
 | Type inference | ✅ | ✅ |
 | Boolean flags | ✅ | ✅ |
 | Global arguments | ✅ | ✅ |
@@ -86,6 +87,19 @@ options:
 @cli.command()
 def fetch(url: str, retries: int = 3):
     """Download from URL with retries"""
+    print(f"Fetched {url} (retries: {retries})")
+```
+
+### `@cli.argument()` — Customize argument flags
+
+Use `@cli.argument()` above `@cli.command()` to customize flags, help text, and behavior for individual parameters without needing the `Argument` class.
+
+```python
+@cli.argument("-v", "--verbose", help="Enable verbose output")
+@cli.argument("-r", "--retries", type=int, help="Number of retries")
+@cli.command()
+def fetch(url: str, verbose: bool = False, retries: int = 3):
+    """Download from URL"""
     print(f"Fetched {url} (retries: {retries})")
 ```
 
