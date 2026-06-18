@@ -141,10 +141,8 @@ class CLI:
                 **parser_kwargs,
             )
 
-            # Collect arguments from both @cli.argument() decorators and the arguments parameter
             all_arguments = list(arguments) if arguments else []
 
-            # Add arguments defined via @cli.argument() decorator
             cli_args = getattr(func, "_cli_arguments", None)
             if cli_args:
                 for arg_config in cli_args:
@@ -166,33 +164,32 @@ class CLI:
                     continue
                 has_default = param.default is not inspect.Parameter.empty
 
-                if not has_default:
+                if is_bool_type(param):
+                    base_flag = param_name.replace("_", "-")
+
+                    if has_default:
+                        default_val = param.default
+                        parser.add_argument(
+                            f"--{base_flag}",
+                            action=argparse.BooleanOptionalAction,
+                            default=default_val,
+                            dest=param_name,
+                            help=f"{param_name} (default: {default_val})",
+                        )
+                    else:
+                        parser.add_argument(
+                            f"--{base_flag}",
+                            action=argparse.BooleanOptionalAction,
+                            required=True,
+                            dest=param_name,
+                            help=f"{param_name} (required)",
+                        )
+
+                elif not has_default:
                     parser.add_argument(
                         param_name,
                         type=get_type_from_annotation(param.annotation, param.default),
                         help=param_name,
-                    )
-                elif is_bool_type(param):
-                    base_flag = param_name.replace("_", "-")
-                    default_val = (
-                        param.default
-                        if param.default is not inspect.Parameter.empty
-                        else False
-                    )
-                    group = parser.add_mutually_exclusive_group()
-                    group.add_argument(
-                        f"--{base_flag}",
-                        action="store_true",
-                        default=default_val,
-                        dest=param_name,
-                        help=f"Enable {param_name}",
-                    )
-                    group.add_argument(
-                        f"--no-{base_flag}",
-                        action="store_false",
-                        default=default_val,
-                        dest=param_name,
-                        help=f"Disable {param_name}",
                     )
                 else:
                     parser.add_argument(

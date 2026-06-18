@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "argss"
-version = "0.1.5"
+version = "0.1.6"
 description = "Write type-annotated Python functions, get a CLI with argparse's native `--help` — no magic, no bloat. Flat commands only, synchronous execution"
 readme = "README.md"
 requires-python = ">=3.10"
