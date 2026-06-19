@@ -1,6 +1,6 @@
 """argss — Stupidly Simple CLI builder (sync-only, no groups)"""
 
 from .argument import Argument
-from .cli import CLI
+from .cli import Argss
 
-__all__ = ["CLI", "Argument"]
+__all__ = ["Argss", "Argument"]

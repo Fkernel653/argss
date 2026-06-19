@@ -23,9 +23,6 @@ Write type-annotated Python functions, get a CLI with argparse's native `--help`
 | Async support | ✅ | ❌ |
 | `color` parameter (Python 3.14+ coloured help) | ✅ | ❌ |
 | Dependencies | none | none |
-| Lines of code | ~150 | ~110 |
-
-> **Note:** arg-kiss provides a `color` parameter in `CLI()` that enables/disables coloured `--help` output on Python 3.14+. argss omits this parameter for simplicity.
 
 Use **argss** when you want:
 - Minimal code footprint
@@ -40,22 +37,22 @@ pip install argss
 ```
 
 ```python
-from argss import CLI
+from argss import Argss
 
-cli = CLI(name="todo", description="Task manager")
+app = Argss(name="todo", description="Task manager")
 
-@cli.command()
+@app.command()
 def add(task: str, priority: int = 1, done: bool = False):
     """Add a task."""
     status = "✓" if done else "○"
     print(f"[{status}] {task} (priority: {priority})")
 
-@cli.command()
+@app.command()
 def list_all():
     """Show all tasks."""
     print("Nothing yet!")
 
-cli()
+app()
 ```
 
 ```bash
@@ -81,26 +78,29 @@ options:
 
 ## 📋 Commands & Features
 
-### `@cli.command()` — Define commands from functions
+### `@app.command()` — Define commands from functions
 
 ```python
-@cli.command()
+@app.command()
 def fetch(url: str, retries: int = 3):
     """Download from URL with retries"""
     print(f"Fetched {url} (retries: {retries})")
 ```
 
-### `@cli.argument()` — Customize argument flags
+### `@app.argument()` — Customize argument flags
 
-Use `@cli.argument()` above `@cli.command()` to customize flags, help text, and behavior for individual parameters without needing the `Argument` class.
+Use `@app.argument()` above `@app.command()` to customize flags, help text, and behavior for individual parameters.
 
 ```python
-@cli.argument("-v", "--verbose", help="Enable verbose output")
-@cli.argument("-r", "--retries", type=int, help="Number of retries")
-@cli.command()
-def fetch(url: str, verbose: bool = False, retries: int = 3):
-    """Download from URL"""
-    print(f"Fetched {url} (retries: {retries})")
+@app.argument("-u", "--user", help="Username")
+@app.argument(
+    ["-p", "--port", {"help": "Port number", "type": int, "default": 8080}],
+    ["--ssl", {"help": "Enable SSL", "action": "store_true"}]
+)
+@app.command()
+def connect(user: str, port: int = 8080, ssl: bool = False):
+    """Connect to server"""
+    print(f"Connecting as {user} on port {port} (SSL: {ssl})")
 ```
 
 ### Type → CLI mapping
@@ -115,10 +115,10 @@ def fetch(url: str, verbose: bool = False, retries: int = 3):
 ### Global arguments (apply to all commands)
 
 ```python
-cli.add_global_argument("--verbose", "-v", action="store_true", help="Verbose output")
-cli.add_global_argument("--config", "-c", type=str, help="Config file path")
+app.add_global_argument("--verbose", "-v", action="store_true", help="Verbose output")
+app.add_global_argument("--config", "-c", type=str, help="Config file path")
 
-@cli.command()
+@app.command()
 def deploy(environment: str):
     """Deploy to environment."""
     # Global arguments available in parsed namespace
@@ -128,7 +128,7 @@ def deploy(environment: str):
 ## 🎨 CLI Configuration
 
 ```python
-cli = CLI(
+app = Argss(
     name="myapp",                       # Program name (default: None)
     description="Does amazing things",  # Description in help (default: None)
     version="2.0.0",                    # Adds --version flag (default: None)
