@@ -143,6 +143,7 @@ class Argss:
         self,
         name: str | None = None,
         description: str | None = None,
+        arguments: List[List] | None = None,
         **parser_kwargs: Any,
     ) -> Callable:
         """
@@ -156,6 +157,8 @@ class Argss:
         Args:
             name: Command name (defaults to function name with underscores replaced by hyphens).
             description: Command description (defaults to function docstring).
+            arguments: List of argument definitions in [flags..., {kwargs}] format.
+                      Each item is a list where the last element is a dict of argparse options.
             **parser_kwargs: Additional arguments passed to argparse.ArgumentParser.add_parser().
 
         Returns:
@@ -167,6 +170,14 @@ class Argss:
                 '''Greet someone multiple times.'''
                 for _ in range(times):
                     print(f"Hello, {name}!")
+
+        Example with arguments:
+            @app.command(arguments=[
+                ["-n", "--name", {"type": str, "help": "Your name"}],
+                ["-v", "--verbose", {"action": "store_true", "help": "Verbose output"}]
+            ])
+            def greet(name: str, verbose: bool = False):
+                ...
         """
 
         def decorator(func: Callable) -> Callable:
@@ -180,6 +191,23 @@ class Argss:
                 **parser_kwargs,
             )
 
+            if arguments:
+                for arg_def in arguments:
+                    flags = []
+                    kwargs = {}
+                    for item in arg_def:
+                        if isinstance(item, str):
+                            flags.append(item)
+                        elif isinstance(item, dict):
+                            kwargs.update(item)
+                    if flags:
+                        cli_args = getattr(func, "_cli_arguments", None)
+                        if cli_args is None:
+                            setattr(func, "_cli_arguments", [])
+                        getattr(func, "_cli_arguments").append(
+                            {"flags": flags, **kwargs}
+                        )
+
             self._commands[cmd_name] = {
                 "func": func,
                 "parser": parser,
@@ -189,7 +217,7 @@ class Argss:
         return decorator
 
     def _setup_parsers(self):
-        for cmd_name, cmd_info in self._commands.items():
+        for cmd_info in self._commands.values():
             func = cmd_info["func"]
             parser = cmd_info["parser"]
 

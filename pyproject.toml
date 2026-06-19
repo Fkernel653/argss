@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "argss"
-version = "0.1.7"
+version = "0.1.8"
 description = "Write type-annotated Python functions, get a CLI with argparse's native `--help` — no magic, no bloat. Flat commands only, synchronous execution"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -12,7 +12,7 @@ license = "MIT"
 authors = [
     {name = "Fkernel653"}
 ]
-keywords = ["cli", "argparse", "command-line", "framework", "lightweight"]
+keywords = ["cli", "command-line", "argparse", "framework", "library", "lib", "lightweight", "kiss", "minimalism"]
 classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
