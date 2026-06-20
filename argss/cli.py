@@ -1,4 +1,4 @@
-"""Lightweight CLI builder with decorator-based command registration."""
+"""argss — Stupidly Simple CLI builder (sync-only, no groups)"""
 
 from __future__ import annotations
 
