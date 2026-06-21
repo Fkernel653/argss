@@ -15,7 +15,7 @@ Write type-annotated Python functions, get a CLI with argparse's native `--help`
 | Feature | arg-kiss | argss |
 |---------|----------|-------|
 | `@cli.command()` | ✅ | ✅ |
-| `@cli.argument()` | ✅ | ✅ |
+| `@cli.argument()` | ✅ | ❌ |
 | Type inference | ✅ | ✅ |
 | Boolean flags | ✅ | ✅ |
 | Global arguments | ✅ | ✅ |
@@ -52,7 +52,7 @@ def list_all():
     """Show all tasks."""
     print("Nothing yet!")
 
-cli()
+cli.run()
 ```
 
 ```bash
