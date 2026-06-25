@@ -87,22 +87,6 @@ def fetch(url: str, retries: int = 3):
     print(f"Fetched {url} (retries: {retries})")
 ```
 
-### `@cli.argument()` — Customize argument flags
-
-Use `@cli.argument()` above `@cli.command()` to customize flags, help text, and behavior for individual parameters.
-
-```python
-@cli.argument("-u", "--user", help="Username")
-@cli.argument(
-    ["-p", "--port", {"help": "Port number", "type": int, "default": 8080}],
-    ["--ssl", {"help": "Enable SSL", "action": "store_true"}]
-)
-@cli.command()
-def connect(user: str, port: int = 8080, ssl: bool = False):
-    """Connect to server"""
-    print(f"Connecting as {user} on port {port} (SSL: {ssl})")
-```
-
 ### Type → CLI mapping
 
 | Function signature | CLI argument |
