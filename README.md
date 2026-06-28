@@ -16,6 +16,7 @@ Write type-annotated Python functions, get a CLI with argparse's native `--help`
 |---------|----------|-------|
 | `@cli.command()` | ✅ | ✅ |
 | `@cli.argument()` | ✅ | ❌ |
+| `arguments` parameter in `@cli.command()` | ✅ | ✅ |
 | Type inference | ✅ | ✅ |
 | Boolean flags | ✅ | ✅ |
 | Global arguments | ✅ | ✅ |
@@ -85,6 +86,29 @@ options:
 def fetch(url: str, retries: int = 3):
     """Download from URL with retries"""
     print(f"Fetched {url} (retries: {retries})")
+```
+
+### Custom arguments with `arguments` parameter
+
+Override default argument generation and add short flags, custom help text, or other argparse options:
+
+```python
+@cli.command(arguments=[
+    ["-n", "--name", {"type": str, "help": "Your name", "required": True}],
+    ["-v", "--verbose", {"action": "store_true", "help": "Enable verbose output"}],
+    ["-r", "--retries", {"type": int, "help": "Number of retries", "default": 3}],
+])
+def greet(name: str, verbose: bool = False, retries: int = 3):
+    """Greet someone."""
+    msg = f"Hello, {name}!"
+    if verbose:
+        msg += f" (retries: {retries})"
+    print(msg)
+```
+
+```bash
+$ python script.py greet -n "Alice" -v -r 5
+Hello, Alice! (retries: 5)
 ```
 
 ### Type → CLI mapping

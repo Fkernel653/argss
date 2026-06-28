@@ -19,6 +19,7 @@ class Argss:
         - Automatic argument inference from function signatures
         - Support for boolean flags with --flag/--no-flag patterns
         - Global arguments shared across all commands
+        - Custom argument definitions via arguments parameter
 
     Args:
         name: Application name (defaults to sys.argv[0] if None).
@@ -120,6 +121,7 @@ class Argss:
             self._commands[cmd_name] = {
                 "func": func,
                 "parser": parser,
+                "arguments": arguments,
             }
             return func
 
@@ -129,8 +131,95 @@ class Argss:
         for cmd_info in self._commands.values():
             func = cmd_info["func"]
             parser = cmd_info["parser"]
+            explicit_args = cmd_info["arguments"]
+
+            explicit_dests = set()
+
+            if explicit_args:
+                for arg_def in explicit_args:
+                    flags = []
+                    kwargs = {}
+                    for item in arg_def:
+                        if isinstance(item, str):
+                            flags.append(item)
+                        elif isinstance(item, dict):
+                            kwargs.update(item)
+
+                    if not flags:
+                        continue
+
+                    param_name = None
+                    for flag in flags:
+                        if flag.startswith("--"):
+                            param_name = flag.lstrip("-").replace("-", "_")
+                            break
+
+                    if not param_name:
+                        param_name = flags[-1].lstrip("-").replace("-", "_")
+
+                    param = inspect.signature(func).parameters.get(param_name)
+                    arg_kwargs = {}
+
+                    if "default" in kwargs:
+                        arg_kwargs["default"] = kwargs["default"]
+                    elif param and param.default is not inspect.Parameter.empty:
+                        arg_kwargs["default"] = param.default
+
+                    if "required" in kwargs:
+                        arg_kwargs["required"] = kwargs["required"]
+                    elif (
+                        param
+                        and param.default is inspect.Parameter.empty
+                        and not is_bool_type(param)
+                    ):
+                        arg_kwargs["required"] = True
+
+                    if "help" in kwargs:
+                        arg_kwargs["help"] = kwargs["help"]
+                    elif param:
+                        arg_kwargs["help"] = param_name
+
+                    if "choices" in kwargs:
+                        arg_kwargs["choices"] = kwargs["choices"]
+
+                    if "dest" in kwargs:
+                        arg_kwargs["dest"] = kwargs["dest"]
+                    else:
+                        arg_kwargs["dest"] = param_name
+
+                    if "action" in kwargs:
+                        if kwargs["action"] in ("store_true", "store_false"):
+                            arg_kwargs["action"] = kwargs["action"]
+                            if "default" not in arg_kwargs:
+                                arg_kwargs["default"] = (
+                                    False if kwargs["action"] == "store_true" else True
+                                )
+                        elif kwargs["action"] == "boolean_optional_action":
+                            arg_kwargs["action"] = argparse.BooleanOptionalAction
+                        else:
+                            arg_kwargs["action"] = kwargs["action"]
+                            if "type" in kwargs:
+                                arg_kwargs["type"] = kwargs["type"]
+                    elif param and is_bool_type(param):
+                        arg_kwargs["action"] = argparse.BooleanOptionalAction
+                    else:
+                        if "type" in kwargs:
+                            arg_kwargs["type"] = kwargs["type"]
+                        elif param:
+                            arg_kwargs["type"] = get_type_from_annotation(
+                                param.annotation,
+                                param.default
+                                if param.default is not inspect.Parameter.empty
+                                else None,
+                            )
+
+                    parser.add_argument(*flags, **arg_kwargs)
+                    explicit_dests.add(arg_kwargs["dest"])
 
             for param_name, param in inspect.signature(func).parameters.items():
+                if param_name in explicit_dests:
+                    continue
+
                 has_default = param.default is not inspect.Parameter.empty
 
                 if is_bool_type(param):
